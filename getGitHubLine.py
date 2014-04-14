@@ -23,7 +23,7 @@ def htmlParser(tPage):
 
    targetURL = ""
    mylist = tree.xpath(".//div[@class='markdown-body']/p")
-   print 'Analying...there are %d link found' % (len(mylist))   
+   print 'Analying...there are %d line found' % (len(mylist))   
 
 
 def main():
