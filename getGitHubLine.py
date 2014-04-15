@@ -93,6 +93,7 @@ def htmlParser(tPage):
       resp.close()
    elif resp.code == 404 :
       print "page do not exist"
+      exit()
    else :
       print "can not open page"
       exit()
