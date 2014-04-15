@@ -1,5 +1,5 @@
 # Author Pei-Chen Tsai aka Hammer
-# Ok, the line break position is impossible to 100% accurate currently, so just tune global parameter for your utility
+# Ok, the line break position is impossible to 100% accurate currently, so just tune global parameter for your own purpose
 
 from cStringIO import StringIO
 from lxml import etree
@@ -107,7 +107,7 @@ def htmlParser(tPage):
                         //div[@class='markdown-body']/h2|\
                         //div[@class='markdown-body']/h3|\
                         //div[@class='markdown-body']/h4|\
-                        //div[@class='markdown-body']/h5") #[]== this fucking ugly, any better idea?
+                        //div[@class='markdown-body']/h5") #[]== this is pretty ugly, any better idea?
    lineSum += handler_h(myList)
    myList = tree.xpath("//div[@class='markdown-body']//li")
    lineSum += handler_li(myList)   
