@@ -95,6 +95,7 @@ def htmlParser(tPage):
    etree.strip_tags(tree,'strong')
    etree.strip_tags(tree,'img')
    etree.strip_tags(tree,'span')
+   etree,strip_tags(tree,'code')
    
    result = etree.tostring(tree.getroot(), pretty_print=True, method="html")
    #print(result)
