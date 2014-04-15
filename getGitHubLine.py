@@ -7,13 +7,15 @@ from pprint import pprint
 import urllib2
 import sys
 
-
+global DB_FLT
 global TYPE_P
 global TYPE_H
 global TYPE_LI
 global BREAK_CNT_P
 global BREAK_CNT_H
 global BREAK_CNT_LI
+
+DB_FLT = 0
 TYPE_P = 0
 TYPE_H = 1
 TYPE_LI = 2
@@ -21,9 +23,12 @@ BREAK_CNT_P = 124
 BREAK_CNT_H = 96
 BREAK_CNT_LI = 120
 
+def DB(level,msg):
+   if int(level) == int(DB_FLT) :
+      print msg
 
 def contentStrip(iList,iType):
-   print 'stripping all tag inside'
+   DB(1,'stripping all tag inside')
    stack = []   
    BREAK_CNT = BREAK_CNT_P #default policy
    
@@ -46,39 +51,39 @@ def contentStrip(iList,iType):
            if int(index) == int(times):                          
               sliceStart = index*BREAK_CNT
               sliceEnd   = (index)*BREAK_CNT+mod      
-              print e.text[sliceStart:sliceEnd]
+              DB(1, e.text[sliceStart:sliceEnd])
               stack.append(e.text)
-              print len(stack)
+              DB(1,str(len(stack)))
            else :
               sliceStart = index*BREAK_CNT
               sliceEnd   = (index+1)*BREAK_CNT            
-              print e.text[sliceStart:sliceEnd]
+              DB(1, e.text[sliceStart:sliceEnd])
               stack.append(e.text)      
-              print len(stack)
+              DB(1, str(len(stack)))
    return stack
 
 def handler_p(iList):      
-   print '\nENTER p handler'
+   DB(1,'ENTER p handler')
    ret = len(iList)
-   print 'There are %d <p> found' % (ret)
+   DB(1, 'There are'+str(ret)+' <p> found')
    ret = len(contentStrip(iList,TYPE_P))
-   print 'LEAVE p handler'
+   DB(1, 'LEAVE li handler')
    return int(ret)
 
-def handler_h(iList):
-   print '\nENTER h handler'
+def handler_h(iList):   
+   DB(1,'ENTER h handler')
    ret = len(iList)
-   print 'There are %d <h> found' % (ret)
+   DB(1, 'There are'+str(ret)+' <h> found')
    ret = len(contentStrip(iList,TYPE_H))
-   print 'LEAVE h handler'
+   DB(1, 'LEAVE li handler')
    return int(ret)
 
 def handler_li(iList):
-   print '\nENTER li handler'
+   DB(1,'ENTER li handler')
    ret = len(iList)
-   print 'There are %d <li> found' % (ret)
+   DB(1, 'There are'+str(ret)+' <li> found')
    ret = len(contentStrip(iList,TYPE_LI))
-   print 'LEAVE li handler'
+   DB(1, 'LEAVE li handler')
    return int(ret)
 
 def htmlParser(tPage):
@@ -86,8 +91,10 @@ def htmlParser(tPage):
    if resp.code == 200 :
       data = resp.read()
       resp.close()
+   elif resp.code == 404 :
+      print "page do not exist"
    else :
-      print('can not open page')
+      print "can not open page"
       exit()
    parser = etree.HTMLParser()
    tree = etree.parse(StringIO(data), parser)
@@ -98,7 +105,7 @@ def htmlParser(tPage):
    etree.strip_tags(tree,'code')
    
    result = etree.tostring(tree.getroot(), pretty_print=True, method="html")
-   #print(result)
+   DB(2, result)
 
    targetURL = ""
    lineSum = 0
@@ -116,13 +123,20 @@ def htmlParser(tPage):
 
 def main():
    tPage = 'https://github.com/'+sys.argv[1]+'/wiki'
-   print('target is:'+tPage)
+   DB(1,'target is:'+tPage)
    htmlParser(tPage)
 
 def verify():
-   if len(sys.argv)!=2:
+   if len(sys.argv) < 2 or len(sys.argv) > 3 :
+      print "command format is: "
+      print sys.argv[0]+" <x/y> <DB>"
+      print "--"
       print "you need to input x/y where is inside 'https://github.com/x/y/wiki'"
+      print "DB is option"
       exit()
+   if len(sys.argv) == 3 :
+      global DB_FLT
+      DB_FLT = int(sys.argv[2])
 
 if __name__ == '__main__':
    verify()
