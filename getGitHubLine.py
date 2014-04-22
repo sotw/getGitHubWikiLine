@@ -8,21 +8,11 @@ import urllib2
 import sys
 import os
 
-global DB_FLT 
-global DB_NOR #normal
-global DB_ARG #argument override
-global DB_VER #verbose print
-global TYPE_P
-global TYPE_H
-global TYPE_LI
-global BREAK_CNT_P
-global BREAK_CNT_H
-global BREAK_CNT_LI
+global DB_FLT, DB_NOR, DB_ARG, DB_VER #verbose print
+global TYPE_P, TYPE_H, TYPE_LI
+global BREAK_CNT_P, BREAK_CNT_H, BREAK_CNT_LI
 global ARGUDB #arugment database
-global ARGUDB_IDX_T #target page
-global ARGUDB_IDX_P
-global ARGUDB_IDX_H
-global ARGUDB_IDX_LI
+global ARGUDB_IDX_T, ARGUDB_IDX_P, ARGUDB_IDX_H, ARGUDB_IDX_LI
 global tPage
 
 DB_FLT, DB_NOR, DB_ARG, DB_VER    = range(4)
@@ -160,7 +150,7 @@ def assignPageAndOverrideArgu():
    DB(DB_ARG,'ENTER overrideArgu')
    global tPage
    tPage = 'https://github.com/'+sys.argv[1];
-   DB(DB_ARG,'target is:'+tPage)
+   #DB(DB_ARG,'target is:'+tPage)
    for entry in ARGUDB:
       entryItemAry = entry.split(',')      
       #for entryItem in entryItemAry:
@@ -168,9 +158,7 @@ def assignPageAndOverrideArgu():
       #DB(DB_ARG,entryItemAry[0]+':'+tPage)
       if entryItemAry[ARGUDB_IDX_T] == tPage :
          DB(DB_ARG,'found target:'+tPage+' ,now override configuration')
-         global BREAK_CNT_P
-         global BREAK_CNT_H
-         global BREAK_CNT_LI
+         global BREAK_CNT_P, BREAK_CNT_H, BREAK_CNT_LI
          BREAK_CNT_P  = int(entryItemAry[ARGUDB_IDX_P])
          BREAK_CNT_H  = int(entryItemAry[ARGUDB_IDX_H])
          BREAK_CNT_LI = int(entryItemAry[ARGUDB_IDX_LI])
