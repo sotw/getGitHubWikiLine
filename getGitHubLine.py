@@ -19,6 +19,7 @@ DB_FLT = 0
 TYPE_P = 0
 TYPE_H = 1
 TYPE_LI = 2
+TYPE_PRE = 3
 BREAK_CNT_P = 124
 BREAK_CNT_H = 96
 BREAK_CNT_LI = 120
@@ -28,38 +29,50 @@ def DB(level,msg):
       print msg
 
 def contentStrip(iList,iType):
-   DB(1,'stripping all tag inside')
+   DB(1,'Doing break line...')
    stack = []   
    BREAK_CNT = BREAK_CNT_P #default policy
-   
-   if iType == TYPE_P :
-      BREAK_CNT = BREAK_CNT_P
-   if iType == TYPE_H :
-      BREAK_CNT = BREAK_CNT_H
-   if iType == TYPE_LI :
-      BREAK_CNT = BREAK_CNT_LI
 
-   for e in iList:                  
-      if e.text is not None :        
-        strLength = len(e.text)        
-        mod = strLength % BREAK_CNT
-        times = strLength / BREAK_CNT
-        index = 0
-        sliceStart = 0
-        sliceEnd = 0
-        for index in range(times+1) :         
-           if int(index) == int(times):                          
-              sliceStart = index*BREAK_CNT
-              sliceEnd   = (index)*BREAK_CNT+mod      
-              DB(1, e.text[sliceStart:sliceEnd])
-              stack.append(e.text)
-              DB(1,str(len(stack)))
-           else :
-              sliceStart = index*BREAK_CNT
-              sliceEnd   = (index+1)*BREAK_CNT            
-              DB(1, e.text[sliceStart:sliceEnd])
-              stack.append(e.text)      
-              DB(1, str(len(stack)))
+   if iType == TYPE_PRE:   #too easy
+      for e in iList:
+         if e.text is not None:            
+            DB(1,e.text)
+            DB(1,'Now spliting...')
+            meList = e.text.split('\n')
+            for eachLine in meList: 
+               if len(eachLine) is not 0:
+                  DB(1,eachLine)
+                  stack.append(eachLine)
+                  DB(1,str(len(stack)))
+   else:      
+      if iType == TYPE_P :
+         BREAK_CNT = BREAK_CNT_P
+      if iType == TYPE_H :
+         BREAK_CNT = BREAK_CNT_H
+      if iType == TYPE_LI :
+         BREAK_CNT = BREAK_CNT_LI
+
+      for e in iList:                  
+         if e.text is not None :        
+           strLength = len(e.text)        
+           mod = strLength % BREAK_CNT
+           times = strLength / BREAK_CNT
+           index = 0
+           sliceStart = 0
+           sliceEnd = 0
+           for index in range(times+1) :         
+              if int(index) == int(times):                          
+                 sliceStart = index*BREAK_CNT
+                 sliceEnd   = (index)*BREAK_CNT+mod      
+                 DB(1, e.text[sliceStart:sliceEnd])
+                 stack.append(e.text)
+                 DB(1,str(len(stack)))
+              else :
+                 sliceStart = index*BREAK_CNT
+                 sliceEnd   = (index+1)*BREAK_CNT            
+                 DB(1, e.text[sliceStart:sliceEnd])
+                 stack.append(e.text)      
+                 DB(1, str(len(stack)))
    return stack
 
 def handler_p(iList):      
@@ -73,9 +86,9 @@ def handler_p(iList):
 def handler_h(iList):   
    DB(1,'ENTER h handler')
    ret = len(iList)
-   DB(1, 'There are'+str(ret)+' <h> found')
+   DB(1, 'There are '+str(ret)+' <h> found')
    ret = len(contentStrip(iList,TYPE_H))
-   DB(1, 'LEAVE li handler')
+   DB(1, 'LEAVE h handler')
    return int(ret)
 
 def handler_li(iList):
@@ -84,6 +97,14 @@ def handler_li(iList):
    DB(1, 'There are'+str(ret)+' <li> found')
    ret = len(contentStrip(iList,TYPE_LI))
    DB(1, 'LEAVE li handler')
+   return int(ret)
+
+def handler_pre(iList):      
+   DB(1,'ENTER pre handler')
+   ret = len(iList)
+   DB(1, 'There are'+str(ret)+' <pre> found')
+   ret = len(contentStrip(iList,TYPE_PRE))
+   DB(1, 'LEAVE pre handler')
    return int(ret)
 
 def htmlParser(tPage):
@@ -120,20 +141,23 @@ def htmlParser(tPage):
    lineSum += handler_h(myList)
    myList = tree.xpath("//div[@class='markdown-body']//li")
    lineSum += handler_li(myList)   
+   myList = tree.xpath("//div[@class='markdown-body']//pre")
+   lineSum += handler_pre(myList)   
+
    print "\ntotal lines is %d" %(lineSum)
 
 def main():
-   tPage = 'https://github.com/'+sys.argv[1]+'/wiki'
+   tPage = 'https://github.com/'+sys.argv[1];
    DB(1,'target is:'+tPage)
    htmlParser(tPage)
 
 def verify():
    if len(sys.argv) < 2 or len(sys.argv) > 3 :
       print "command format is: "
-      print sys.argv[0]+" <x/y> <DB>"
+      print sys.argv[0]+" <target> <DB>"
       print "--"
-      print "you need to input x/y where is inside 'https://github.com/x/y/wiki'"
-      print "DB is option"
+      print "you need to input <target> where is inside 'https://github.com/<target>'"
+      print "DB is option"      
       exit()
    if len(sys.argv) == 3 :
       global DB_FLT
