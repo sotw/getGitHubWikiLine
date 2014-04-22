@@ -6,23 +6,42 @@ from lxml import etree
 from pprint import pprint
 import urllib2
 import sys
+import os
 
-global DB_FLT
+global DB_FLT 
+global DB_NOR #normal
+global DB_ARG #argument override
+global DB_VER #verbose print
 global TYPE_P
 global TYPE_H
 global TYPE_LI
 global BREAK_CNT_P
 global BREAK_CNT_H
 global BREAK_CNT_LI
+global ARGUDB #arugment database
+global ARGUDB_IDX_T #target page
+global ARGUDB_IDX_P
+global ARGUDB_IDX_H
+global ARGUDB_IDX_LI
+global tPage
 
-DB_FLT = 0
-TYPE_P = 0
-TYPE_H = 1
-TYPE_LI = 2
-TYPE_PRE = 3
-BREAK_CNT_P = 124
-BREAK_CNT_H = 96
-BREAK_CNT_LI = 120
+DB_FLT        = 0
+DB_NOR        = 1
+DB_ARG        = 2
+DB_VER        = 3
+TYPE_P        = 0
+TYPE_H        = 1
+TYPE_LI       = 2
+TYPE_PRE      = 3
+BREAK_CNT_P   = 124
+BREAK_CNT_H   = 96
+BREAK_CNT_LI  = 120
+ARGUDB        = []
+ARGUDB_IDX_T  = 0
+ARGUDB_IDX_P  = 1
+ARGUDB_IDX_H  = 2
+ARGUDB_IDX_LI = 3
+tPage         = ''
 
 def DB(level,msg):
    if int(level) == int(DB_FLT) :
@@ -78,9 +97,9 @@ def contentStrip(iList,iType):
 def handler_p(iList):      
    DB(1,'ENTER p handler')
    ret = len(iList)
-   DB(1, 'There are'+str(ret)+' <p> found')
+   DB(1, 'There are '+str(ret)+' <p> found')
    ret = len(contentStrip(iList,TYPE_P))
-   DB(1, 'LEAVE li handler')
+   DB(1, 'LEAVE p handler')
    return int(ret)
 
 def handler_h(iList):   
@@ -94,7 +113,7 @@ def handler_h(iList):
 def handler_li(iList):
    DB(1,'ENTER li handler')
    ret = len(iList)
-   DB(1, 'There are'+str(ret)+' <li> found')
+   DB(1, 'There are '+str(ret)+' <li> found')
    ret = len(contentStrip(iList,TYPE_LI))
    DB(1, 'LEAVE li handler')
    return int(ret)
@@ -102,7 +121,7 @@ def handler_li(iList):
 def handler_pre(iList):      
    DB(1,'ENTER pre handler')
    ret = len(iList)
-   DB(1, 'There are'+str(ret)+' <pre> found')
+   DB(1, 'There are '+str(ret)+' <pre> found')
    ret = len(contentStrip(iList,TYPE_PRE))
    DB(1, 'LEAVE pre handler')
    return int(ret)
@@ -127,7 +146,7 @@ def htmlParser(tPage):
    etree.strip_tags(tree,'code')
    
    result = etree.tostring(tree.getroot(), pretty_print=True, method="html")
-   DB(2, result)
+   DB(DB_VER, result)
 
    targetURL = ""
    lineSum = 0
@@ -146,9 +165,43 @@ def htmlParser(tPage):
 
    print "\ntotal lines is %d" %(lineSum)
 
-def main():
+def assignPageAndOverrideArgu():
+   DB(DB_ARG,'ENTER overrideArgu')
+   global tPage
    tPage = 'https://github.com/'+sys.argv[1];
-   DB(1,'target is:'+tPage)
+   DB(DB_ARG,'target is:'+tPage)
+   for entry in ARGUDB:
+      entryItemAry = entry.split(',')      
+      #for entryItem in entryItemAry:
+         #DB(DB_ARG,'item is:'+entryItem)
+      #DB(DB_ARG,entryItemAry[0]+':'+tPage)
+      if entryItemAry[ARGUDB_IDX_T] == tPage :
+         DB(DB_ARG,'found target:'+tPage+' ,now override configuration')
+         global BREAK_CNT_P
+         global BREAK_CNT_H
+         global BREAK_CNT_LI
+         BREAK_CNT_P  = int(entryItemAry[ARGUDB_IDX_P])
+         BREAK_CNT_H  = int(entryItemAry[ARGUDB_IDX_H])
+         BREAK_CNT_LI = int(entryItemAry[ARGUDB_IDX_LI])
+
+   DB(DB_ARG,'LEAVE overrideArgu')
+
+def loadArgumentDb():
+   DB(DB_ARG,'ENTER loadArgumentDb')
+   if os.path.isfile('./argumentDataBase') is True:
+      f = open('argumentDataBase','r')
+      if f is not None:
+         for line in f :
+            if line != '\n' and line[0] != '#':
+               line = line.rstrip('\n')
+               global ARGUDB
+               ARGUDB.append(line)
+         f.close()
+   else:
+      DB(DB_ARG,'override file is not exist')
+   DB(DB_ARG,'LEAVE loadArgumentDb')
+
+def main():
    htmlParser(tPage)
 
 def verify():
@@ -165,4 +218,6 @@ def verify():
 
 if __name__ == '__main__':
    verify()
+   loadArgumentDb()
+   assignPageAndOverrideArgu()
    main()
