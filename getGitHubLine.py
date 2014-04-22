@@ -25,22 +25,13 @@ global ARGUDB_IDX_H
 global ARGUDB_IDX_LI
 global tPage
 
-DB_FLT        = 0
-DB_NOR        = 1
-DB_ARG        = 2
-DB_VER        = 3
-TYPE_P        = 0
-TYPE_H        = 1
-TYPE_LI       = 2
-TYPE_PRE      = 3
+DB_FLT, DB_NOR, DB_ARG, DB_VER    = range(4)
+TYPE_P, TYPE_H, TYPE_LI, TYPE_PRE = range(4)
 BREAK_CNT_P   = 124
 BREAK_CNT_H   = 96
 BREAK_CNT_LI  = 120
 ARGUDB        = []
-ARGUDB_IDX_T  = 0
-ARGUDB_IDX_P  = 1
-ARGUDB_IDX_H  = 2
-ARGUDB_IDX_LI = 3
+ARGUDB_IDX_T, ARGUDB_IDX_P, ARGUDB_IDX_H, ARGUDB_IDX_LI = range(4)
 tPage         = ''
 
 def DB(level,msg):
